@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Bitcoin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #16365b, #1a4a72); /* Gradient of Blue */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            transition: all 0.3s ease-in-out;
+        }
+
+        h1 {
+            color: #f3d38a; /* Gold color */
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .info-container, .form-container, .result-container {
+            background: linear-gradient(to right, #f3d38a, #f2c05d); /* Gradient of Gold */
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+            margin-bottom: 20px;
+            width: 80%; /* Adjusted width for better spacing */
+            max-width: 600px; /* Maximum width */
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333; /* Dark text color */
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: calc(100% - 20px); /* Adjusted input width */
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #f3d38a; /* Gold background color */
+            color: #16365b; /* Blue text color */
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+    
+        button:hover {
+            background-color: #f2c05d; /* Lighter Gold hover background */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate Bitcoin</h1>
+    <div class="info-container">
+        <p>Bitcoin ID: <span id="bitcoin-id"></span></p>
+        <p>Wallet Balance: <span id="wallet-balance"></span></p>
+    </div>
+    <div class="form-container">
+        <form id="math-form">
+            <label id="math-problem"></label>
+            <input type="text" id="answer" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div class="result-container" style="display: none;">
+        <p id="result-message"></p>
+        <p>Updated Wallet Balance: <span id="updated-wallet-balance"></span></p>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+
+            const userResponse = await fetch(`/get_user_info?username=${username}`);
+            const userData = await userResponse.json();
+
+            document.getElementById('bitcoin-id').textContent = userData.bitcoin_id;
+            document.getElementById('wallet-balance').textContent = userData.wallet_balance;
+
+            const mathProblem = generateMathProblem();
+            document.getElementById('math-problem').textContent = mathProblem.problem;
+
+            document.getElementById('math-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const answer = document.getElementById('answer').value;
+                if (parseInt(answer) === mathProblem.answer) {
+                    const response = await fetch('/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, bitcoin_value: mathProblem.bitcoin_value })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.message) {
+                        document.getElementById('result-message').textContent = 'Bitcoin generated!';
+                        document.getElementById('updated-wallet-balance').textContent = result.new_balance;
+                        document.querySelector('.result-container').style.display = 'block';
+                    } else {
+                        document.getElementById('result-message').textContent = 'Failed to generate Bitcoin, please try again.';
+                    }
+                } else {
+                    document.getElementById('result-message').textContent = 'Incorrect answer, please try again.';
+                    document.querySelector('.result-container').style.display = 'block';
+                }
+            });
+        });
+
+        function generateMathProblem() {
+            const problems = [
+                { problem: '12 + 8', answer: 20, bitcoin_value: 1.0 },
+                { problem: '15 - 7', answer: 8, bitcoin_value: 1.0 },
+                { problem: '3 * 4', answer: 12, bitcoin_value: 1.5 },
+                { problem: '18 / 2', answer: 9, bitcoin_value: 1.0 },
+                { problem: '25 + 30', answer: 55, bitcoin_value: 2.0 },
+                { problem: '50 - 15', answer: 35, bitcoin_value: 2.0 },
+                { problem: '7 * 8', answer: 56, bitcoin_value: 2.5 },
+                { problem: '144 / 12', answer: 12, bitcoin_value: 2.0 },
+                { problem: '20 + 25 - 10', answer: 35, bitcoin_value: 3.0 },
+                { problem: '10 * (5 + 3)', answer: 80, bitcoin_value: 3.0 }
+            ];
+            return problems[Math.floor(Math.random() * problems.length)];
+        }
+    </script>
+</body>
+</html>

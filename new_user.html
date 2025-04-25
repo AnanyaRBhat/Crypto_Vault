@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New User Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #16365b, #1a4a72, #16365b);
+            background-size: 400% 400%;
+            color: #f3d38a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            transition: all 0.3s ease-in-out;
+            animation: gradient 15s ease infinite;
+        }
+
+        h1 {
+            color: #f3d38a; /* Gold color */
+            margin-bottom: 30px;
+            font-size: 50px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out, shine 2s infinite;
+        }
+
+        .form-container {
+            background: linear-gradient(45deg, #16365b, #1a4a72, #16365b); /* Blue gradient background */
+            padding: 20px; /* Decreased padding */
+            border-radius: 10px; /* Decreased border radius */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Adjusted box shadow */
+            animation: fadeIn 1s ease-in-out;
+            width: 400px; /* Decreased width */
+            max-width: 90%;
+            text-align: center;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 15px; /* Adjusted margin */
+            color: #f3d38a; /* Gold label color */
+        }
+    
+        input[type="text"], input[type="password"] {
+            padding: 12px; /* Adjusted padding */
+            width: calc(100% - 24px); /* Adjusted input width */
+            margin-bottom: 15px; /* Adjusted margin */
+            border: none;
+            border-radius: 8px;
+            color: #16365b; /* Dark Blue text */
+            background-color: #f3d38a; /* Gold background for inputs */
+        }
+    
+        button {
+            background: linear-gradient(to right, #f3d38a, #daa520); /* Gold gradient */
+            color: #16365b; /* Dark Blue text */
+            border: none;
+            padding: 15px 30px; /* Adjusted padding */
+            border-radius: 8px;
+            font-size: 24px; /* Decreased font size */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Adjusted box shadow */
+        }
+    
+        button:hover {
+            background: linear-gradient(to right, #daa520, #f3d38a); /* Reverse gradient */
+            transform: translateY(-3px); /* Adjusted hover effect */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3); /* Adjusted hover box shadow */
+        }
+    
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    
+        @keyframes shine {
+            0% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.7); }
+            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 30px rgba(255, 215, 0, 1); }
+            100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.7); }
+        }
+    
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <h1>New User Registration</h1>
+    <div class="form-container">
+        <form id="new-user-form">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" readonly>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" required>
+            <button type="submit">Register</button>
+        </form>
+        <div id="bitcoin-id-container" style="display: none; margin-top: 20px;">
+            <p>Your Bitcoin ID is: <span id="bitcoin-id"></span></p>
+            <button id="continue-button">Continue</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+            document.getElementById('username').value = username;
+        });
+
+        document.getElementById('new-user-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const city = document.getElementById('city').value;
+
+            const response = await fetch('/register_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, city })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('bitcoin-id').textContent = result.bitcoin_id;
+                document.getElementById('bitcoin-id-container').style.display = 'block';
+                document.getElementById('new-user-form').style.display = 'none';
+            } else {
+                alert('Registration failed, please try again.');
+            }
+        });
+
+        document.getElementById('continue-button').addEventListener('click', () => {
+            window.location.href = '/generate.html';
+        });
+    </script>
+</body>
+</html>

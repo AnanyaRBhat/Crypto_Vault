@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Bitcoin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #16365b, #1a4a72, #16365b);
+            background-size: 400% 400%;
+            color: #f3d38a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            animation: fadeIn 1.5s ease-in-out, gradient 15s ease infinite;
+        }
+
+        h1 {
+            color: #f3d38a; /* Gold color */
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in-out, shine 2s infinite;
+        }
+
+        .form-container {
+            background-color: rgba(25, 54, 91, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #f3d38a;
+        }
+
+        input[type="text"], input[type="password"] {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            color: #16365b;
+        }
+
+        button {
+            background: linear-gradient(to right, #f3d38a, #daa520); /* Gold gradient */
+            color: #16365b; /* Dark Blue text */
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #daa520, #f3d38a); /* Reverse gradient */
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shine {
+            0% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.7); }
+            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 30px rgba(255, 215, 0, 1); }
+            100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.7); }
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate Bitcoin</h1>
+    <div class="form-container">
+        <form id="generate-form">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <div id="password-container" style="display: none;">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('generate-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const passwordContainer = document.getElementById('password-container');
+
+            if (passwordContainer.style.display === 'none') {
+                const response = await fetch('/check_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username })
+                });
+
+                const result = await response.json();
+
+                if (result.exists) {
+                    passwordContainer.style.display = 'block';
+                } else {
+                    window.location.href = `/new_user.html?username=${username}`;
+                }
+            } else {
+                const response = await fetch('/verify_password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (result.valid) {
+                    window.location.href = `/generate_bc.html?username=${username}`;
+                } else {
+                    alert('Invalid password, please try again.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

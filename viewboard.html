@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Transactions</title>
+    <style>
+        
+            body {
+                font-family: Arial, sans-serif;
+                background: #16365b; /* Dark blue background */
+                color: #f3d38a; /* Gold text */
+                text-align: center;
+                padding: 20px;
+                margin: 0;
+            }
+        
+            h1 {
+                margin-bottom: 20px;
+                color: #ffd700; /* Gold text for headings */
+            }
+        
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                background:  #16365b; /* Slightly lighter dark blue background */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+        
+            th, td {
+                padding: 12px;
+                text-align: left;
+            }
+        
+            th {
+                background: #16365b; /* Dark blue background for headers */
+                color: #f3d38a; /* Gold text for headers */
+                border: none; /* Remove border for headers */
+            }
+        
+            td {
+                background:  #16365b; /* Slightly lighter dark blue background for cells */
+                color: #f3d38a; /* Gold text for cells */
+                border: none; /* Remove border for cells */
+            }
+        
+            @keyframes shine {
+                0% {
+                    text-shadow: 0 0 3px #ffd700, 0 0 5px #ffd700, 0 0 8px #ffd700;
+                }
+                50% {
+                    text-shadow: 0 0 3px #ffd700, 0 0 8px #ffd700, 0 0 10px #ffd700;
+                }
+                100% {
+                    text-shadow: 0 0 3px #ffd700, 0 0 5px #ffd700, 0 0 8px #ffd700;
+                }
+            }
+        
+            h1, th{
+                animation: shine 2s infinite;
+            }
+        
+            button {
+                background: #ffd700; /* Gold background for buttons */
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                color: #000; /* Black text */
+                font-size: 16px;
+                cursor: pointer;
+                transition: background 0.3s ease, color 0.3s ease;
+            }
+        
+            button:hover {
+                background: #d3d3d3; /* Light grey background on hover */
+                color: #000; /* Black text on hover */
+            }
+        
+        
+        
+    </style>
+</head>
+<body>
+    <h1>Transaction History</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Amount</th>
+                <th>Timestamp</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.transaction_id }}</td>
+                <td>{{ transaction.amount }}</td>
+                <td>{{ transaction.timestamp }}</td>
+                <td>{{ transaction.timestamp.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

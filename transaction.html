@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background:linear-gradient(45deg, #16365b, #1a4a72, #16365b);
+            color: #16365b; /* Blue text */
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f3d38a;  /* Semi-transparent white background */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .box {
+            padding: 20px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            border-radius: 8px;
+            background: #16365b; /* Dark blue background */
+            color: #f3d38a; /* Gold text */
+            transition: background 0.3s ease;
+        }
+        
+        .box:hover {
+            background: #1c427d; /* Slightly darker blue on hover */
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .message-box {
+            padding: 15px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            border-radius: 8px;
+            background: #f3d38a; /* Gold background for messages */
+            color: #16365b; /* Blue text for messages */
+        }
+        
+        button {
+            background: #f3d38a; /* Gold background for buttons */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #16365b; /* Blue text for buttons */
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        button:hover {
+            background: #1c427d; /* Dark blue background on hover */
+            color: #f3d38a; /* Gold text on hover */
+        }
+        
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #16365b; /* Blue text for inputs */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login-container" class="box">
+            <h2>Login</h2>
+            <form id="login-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required><br><br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required><br><br>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+        
+        <div id="transaction-container" class="box hidden">
+            <h2>Make a Transaction</h2>
+            <p>Username: <span id="display-username"></span></p>
+            <p>Wallet Balance: <span id="wallet-balance"></span></p>
+            <form id="transaction-form">
+                <label for="sender-id">Sender Bitcoin ID:</label>
+                <input type="text" id="sender-id" name="sender-id" required><br><br>
+                <label for="receiver-id">Receiver Bitcoin ID:</label>
+                <input type="text" id="receiver-id" name="receiver-id" required><br><br>
+                <label for="amount">Amount:</label>
+                <input type="number" step="0.01" id="amount" name="amount" required><br><br>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+        
+        <div id="success-container" class="box hidden">
+            <h2>Transaction Successful</h2>
+            <p>New Wallet Balance: <span id="new-wallet-balance"></span></p>
+        </div>
+        
+        <div id="message-container" class="message-box hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            }).then(response => response.json()).then(result => {
+                if (result.success) {
+                    document.getElementById('login-container').classList.add('hidden');
+                    document.getElementById('transaction-container').classList.remove('hidden');
+                    document.getElementById('display-username').textContent = result.username;
+                    document.getElementById('wallet-balance').textContent = result.wallet_balance;
+                } else {
+                    showMessage(result.message || 'Invalid username or password');
+                }
+            });
+        });
+
+        document.getElementById('transaction-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const sender_id = document.getElementById('sender-id').value;
+            const receiver_id = document.getElementById('receiver-id').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            fetch('/transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sender_id, receiver_id, amount })
+            }).then(response => response.json()).then(result => {
+                if (result.error) {
+                    showMessage(result.error);
+                } else {
+                    document.getElementById('transaction-container').classList.add('hidden');
+                    document.getElementById('success-container').classList.remove('hidden');
+                    document.getElementById('new-wallet-balance').textContent = result.new_balance;
+                }
+            });
+        });
+
+        function showMessage(message) {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.textContent = message;
+            messageContainer.classList.remove('hidden');
+            setTimeout(() => {
+                messageContainer.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
